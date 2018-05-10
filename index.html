@@ -1,0 +1,201 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta charset="utf-8" />
+        <title>音频测试</title>
+        <meta name="description" content="音乐测试" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <style type="text/css">
+            #test{opacity: 0;}
+            body{
+                background-image: url(./bg.jpg);
+                background-size:100%;
+            }
+            .box{
+                position: relative;
+                width:100px;
+                height:100px;
+                margin:0 auto;
+            }
+            .box .p{
+                animation-duration: 1000ms;
+                border-left-width: 4px;
+                border-top-width: 4px;
+                border-left-color: #fff;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                border-left-style: solid;
+                border-top-style: solid;
+                border-top-color: transparent;
+            }
+            .box .p1{
+                -webkit-animation: atom-spinner-animation-1 1s linear infinite;
+                animation: atom-spinner-animation-1 1s linear infinite;
+                -webkit-transform: rotate(120deg) rotateX(66deg) rotate(0deg);
+                transform: rotate(120deg) rotateX(66deg) rotate(0deg);
+            }
+            .box .p2{
+                -webkit-animation: atom-spinner-animation-2 1s linear infinite;
+                animation: atom-spinner-animation-2 1s linear infinite;
+                -webkit-transform: rotate(240deg) rotateX(66deg) rotate(0deg);
+                transform: rotate(240deg) rotateX(66deg) rotate(0deg);
+            }
+            .box .p3{
+                -webkit-animation: atom-spinner-animation-3 1s linear infinite;
+                animation: atom-spinner-animation-3 1s linear infinite;
+                -webkit-transform: rotate(1turn) rotateX(66deg) rotate(0deg);
+                transform: rotate(1turn) rotateX(66deg) rotate(0deg);
+            }
+            @keyframes atom-spinner-animation-1 {
+                100% {
+                transform: rotateZ(120deg) rotateX(66deg) rotateZ(360deg);
+                }
+            }
+            @keyframes atom-spinner-animation-2 {
+                100% {
+                transform: rotateZ(240deg) rotateX(66deg) rotateZ(360deg);
+                }
+            }
+            @keyframes atom-spinner-animation-3 {
+                100% {
+                transform: rotateZ(360deg) rotateX(66deg) rotateZ(360deg);
+                }
+            }
+            .desc{color:#fff;text-align: center;margin:50px 0 30px;}
+            .desc .wrapper{display: flex;padding:5px 40px;}
+            .desc .wrapper .left{width:120px;text-align: right;}
+            .desc .wrapper .right{flex:1;}
+
+            .btnGroup{
+                padding:20px 10px 0;
+                display: flex;
+                justify-content: space-between;
+            }
+            .btn{
+                padding:5px 10px;
+                border-radius:5px;
+                outline: none;
+                box-shadow: none;
+                border:none;
+                background:#0095f9;
+                color:#fff;
+            }
+            input,select,button{ -webkit-appearance:none; appearance: none;}
+        </style>
+    </head>
+    <body>
+        <div class="info">
+            <audio src="./v1.mp3" controls="controls" id="test" preload>
+                Your browser does not support the audio element.
+            </audio>
+            <div class="box">
+                <div class="p p1"></div>
+                <div class="p p2"></div>
+                <div class="p p3"></div>
+            </div>
+            <div class="desc">
+                <div class="wrapper">
+                    <div class="left">总时长(s)：</div>
+                    <div class="right">
+                        <span id="timeAll"></span>
+                    </div>
+                </div>
+                <div class="wrapper">
+                    <div class="left">当前播放到(s)：</div>
+                    <div class="right">
+                        <span id="curTime">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="btnGroup">
+            <button type="button" id="btn1" class="btn">开始播放</button>
+            <button type="button" id="btn2" class="btn">继续播放</button>
+            <button type="button" id="btn3" class="btn">暂停播放</button>
+            <button type="button" id="btn4" class="btn">下一个播放</button>
+        </div>
+    </body>
+    <script>
+        var curAudio = 1;     //当前播放的音频
+        var sec = 10;         //当多少s后暂停播放
+        var curtime = 0;      //当前播放时间
+        var time = '';        //定时器
+        var allTime = '';     //总时长
+        var vi=document.getElementById('test')
+        var btn1 = document.getElementById('btn1')
+        var btn2 = document.getElementById('btn2')
+        var btn3 = document.getElementById('btn3')
+        var btn4 = document.getElementById('btn4')
+        var timeAll = document.getElementById('timeAll')
+        var curTime = document.getElementById('curTime')
+        
+        function ev(){
+            if(vi.currentTime>sec){
+                vi.pause();
+            } 
+        }
+        //当语音加载完毕
+        vi.oncanplay=function(){
+            console.log('语音总时长：',vi.duration);
+            allTime=vi.duration;
+            timeAll.innerHTML=allTime;
+            //当语音时长改变的时候判断到指定时长暂停播放
+            vi.addEventListener('timeupdate', ev)
+        }
+        //开始播放
+        btn1.onclick=function(){
+            time = setInterval(function(){
+                curtime++;
+                if(curtime>=sec){
+                    clearInterval(time)
+                }
+                curTime.innerHTML=curtime;
+            },1000)
+            vi.play()
+            curAudio=2;
+        }
+        // 继续播放
+        btn2.onclick=function(){
+            vi.removeEventListener('timeupdate',ev)
+            vi.play()
+            time = setInterval(function(){
+                curtime++;
+                if(curtime>allTime){
+                    curtime=0;
+                    clearInterval(time)
+                }
+                curTime.innerHTML=curtime;
+            },1000)
+        }
+        // 暂停播放
+        btn3.onclick=function(){
+            vi.pause();
+            clearInterval(time);
+        }
+        // 下一个播放
+        btn4.onclick=function(){
+            vi.addEventListener('timeupdate', ev)
+            clearInterval(time);
+            curtime=0;
+            curTime.innerHTML=curtime;
+            time = setInterval(function(){
+                curtime++;
+                if(curtime>=sec){
+                    clearInterval(time)
+                }
+                curTime.innerHTML=curtime;
+            },1000)
+            if(curAudio==1){
+                curAudio=2;
+                vi.src='./v2.mp3'
+            }else{
+                curAudio=1;
+                vi.src='./v1.mp3'
+            }
+            vi.play()
+        }
+    </script>
+</html>
